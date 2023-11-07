@@ -63,3 +63,28 @@ with tab1:
     # display pandas dataframe as a table
     st.dataframe(column_info_table, hide_index=True)
 
+with tab2:
+  if uploaded_data is not None:
+    # find numeric features  in the dataframe
+    numeric_cols = df.select_dtypes(include='number').columns.tolist()
+
+    # add selection-box widget
+    selected_num_col = st.selectbox("Which numeric column do you want to explore?", numeric_cols)
+
+    st.header(f"{selected_num_col} - Statistics")
+    
+    col_info = {}
+    col_info["Number of Unique Values"] = len(df[selected_num_col].unique())
+    col_info["Number of Rows with Missing Values"] = df[selected_num_col].isnull().sum()
+    col_info["Number of Rows with 0"] = df[selected_num_col].eq(0).sum()
+    col_info["Number of Rows with Negative Values"] = df[selected_num_col].lt(0).sum()
+    col_info["Average Value"] = df[selected_num_col].mean()
+    col_info["Standard Deviation Value"] = df[selected_num_col].std()
+    col_info["Minimum Value"] = df[selected_num_col].min()
+    col_info["Maximum Value"] = df[selected_num_col].max()
+    col_info["Median Value"] = df[selected_num_col].median()
+
+    info_df = pd.DataFrame(list(col_info.items()), columns=['Description', 'Value'])
+    # display dataframe as a markdown table
+    st.dataframe(info_df)
+
