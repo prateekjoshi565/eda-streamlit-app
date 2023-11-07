@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # add title for the app
 st.title("Exploratory Data Analysis")
@@ -88,3 +89,32 @@ with tab2:
     # display dataframe as a markdown table
     st.dataframe(info_df)
 
+    st.header("Histogram")
+    fig = px.histogram(df, x=selected_num_col)
+    st.plotly_chart(fig, use_container_width=True)
+
+with tab3:
+  if uploaded_data is not None:
+    # find categorical columns in the dataframe
+    cat_cols = df.select_dtypes(include='object')
+    cat_cols_names = cat_cols.columns.tolist()
+
+    # add select widget
+    selected_cat_col = st.selectbox("Which text column do you want to explore?", cat_cols_names)
+
+    st.header(f"{selected_cat_col}")
+    
+    # add categorical column stats
+    cat_col_info = {}
+    cat_col_info["Number of Unique Values"] = len(df[selected_cat_col].unique())
+    cat_col_info["Number of Rows with Missing Values"] = df[selected_cat_col].isnull().sum()
+    cat_col_info["Number of Empty Rows"] = df[selected_cat_col].eq("").sum()
+    cat_col_info["Number of Rows with Only Whitespace"] = len(df[selected_cat_col][df[selected_cat_col].str.isspace()])
+    cat_col_info["Number of Rows with Only Lowercases"] = len(df[selected_cat_col][df[selected_cat_col].str.islower()])
+    cat_col_info["Number of Rows with Only Uppercases"] = len(df[selected_cat_col][df[selected_cat_col].str.isupper()])
+    cat_col_info["Number of Rows with Only Alphabet"] = len(df[selected_cat_col][df[selected_cat_col].str.isalpha()])
+    cat_col_info["Number of Rows with Only Digits"] = len(df[selected_cat_col][df[selected_cat_col].str.isdigit()])
+    cat_col_info["Mode Value"] = df[selected_cat_col].mode()[0]
+
+    cat_info_df = pd.DataFrame(list(cat_col_info.items()), columns=['Description', 'Value'])
+    st.dataframe(cat_info_df)
